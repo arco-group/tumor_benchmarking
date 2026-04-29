@@ -1,12 +1,32 @@
-# CNN models
+# CNN Models
 
-dire qua che da un solo file si puo addestrare DeepLabV3 (o altri modelli torchvision per semantic segmentation) e U-Net e da un'altro file l'inferenza
+This directory contains tools for training and performing inference with CNN models for semantic segmentation tasks.
 
-spiegare bash file e argomenti che servono
+## Overview
 
-spiegare ancora che i dataset devono essere sempre nello stesso directory (nnUNet_raw) e quello sarà data_dir
+You can train DeepLabV3 and other torchvision semantic segmentation models (see [PyTorch Vision Models](https://docs.pytorch.org/vision/0.9/models.html#semantic-segmentation)) as well as U-Net from a single training file. Inference can be performed using a separate inference file.
 
+## Dataset Configuration
+
+In the `dataset.py` file, the `MultiDataset` class contains a dictionary called `tumor_path_labels` that maps tumor types to their corresponding dataset folder names in the nnUNet_raw directory. This dictionary looks like:
+
+```python
+tumor_path_labels = {
+    'lung': 'Dataset002_Lung1',
+    'breast': 'Dataset008_ISPY1',
+    'liver': 'Dataset009_Liver2',
+    'kidney': 'Dataset012_Kidney',
+    'brain': 'Dataset004_BraTS'
+}
 ```
+
+**Important**: You must modify this dictionary to match your own dataset folder names and tumor types. Each key should correspond to the tumor type you use as the `--tumor` argument, and each value should be the exact folder name in your `nnUNet_raw` directory.
+
+## Training
+
+To train a model, use the `train.py` script. Below is an example bash command with the required arguments:
+
+```bash
 source venv/bin/activate
 
 srun --export=ALL python -u train.py \
