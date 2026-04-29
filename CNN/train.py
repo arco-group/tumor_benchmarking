@@ -14,7 +14,7 @@ parser.add_argument("--tumor", type=str, choices=["lung", "liver", "kidney", "br
 parser.add_argument("--model", type=str, choices=["deeplabv3_resnet101", "unet"])
 parser.add_argument("-batch_size", type=int, default=16)
 parser.add_argument("-num_epoch", type=int, default=100)
-parser.add_argument("-num_classes", type=int, default=2, help="Number of classes depends on the labels of the mask. It is 2 for all tumors, except for brain, that has 4 labels. Background is included")
+parser.add_argument("-num_classes", type=int, default=2, help="Number of classes depends on the labels of the mask. It is 2 for all of our datasets, except for BraTS, that has 4 labels. Background is included")
 args = parser.parse_args()
 
 transform = transforms.Compose([
