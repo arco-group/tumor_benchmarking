@@ -97,6 +97,6 @@ All models and training scripts are ready to work with datasets organized accord
 
 ## Dataset Format Requirements
 
-All dataset format specifications follow the nnUNet standards. For detailed information on configuration options and additional requirements, please refer to the [nnUNet documentation](https://github.com/MIC-DKFZ/nnUNet/blob/master/documentation/dataset_format.md#supported-file-formats).
+All dataset format specifications follow the nnUNet standards. For detailed information on configuration options and additional requirements, please refer to the [nnUNet documentation](https://github.com/MIC-DKFZ/nnUNet/blob/master/documentation/dataset_format.md#what-do-training-cases-look-like).
 
 Note: we have also added an additional folder `LabelsTs/` containing ground-truth labels for test cases. This folder is not part of the original nnUNet dataset format but is included here to enable evaluation of our test sets using the ground-truth labels alongside the provided test images.
