@@ -23,23 +23,6 @@ export nnUNet_preprocessed="/path/to/nnUNet_preprocessed"
 export nnUNet_results="/path/to/nnUNet_results"
 ```
 
-## Dataset structure
-
-Each dataset must follow the nnU-Net directory conventions. In this repository, the raw data is organized so that image, label, and split files remain aligned with the codebase expectations.
-
-The train and test split files should list relative paths in the following format:
-
-```text
-tumor_000_0000.nii.gz/0
-tumor_000_0000.nii.gz/1
-tumor_000_0000.nii.gz/2
-tumor_000_0000.nii.gz/3
-tumor_001_0000.nii.gz/0
-tumor_001_0000.nii.gz/1
-tumor_001_0000.nii.gz/2
-tumor_001_0000.nii.gz/3
-...
-```
 
 ## Preprocess a dataset
 
