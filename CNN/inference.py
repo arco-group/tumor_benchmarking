@@ -173,3 +173,15 @@ for k, v in metrics.items():
 
 print(f"Overall metrics saved at: {metrics_path}")
 print(f"Cases metrics saved at: {per_case_path}")
+
+
+  # checkpoint_path: "/mimer/NOBACKUP/groups/naiss2023-6-336/emulero/tumor-segmentator/benchmarking/unxs3sge/checkpoints/epoch=45-val_dice=0.0000.ckpt"  # deeplab liver
+  # checkpoint_path: "/mimer/NOBACKUP/groups/naiss2023-6-336/emulero/tumor-segmentator/benchmarking/0ypa23ou/checkpoints/epoch=93-val_dice=0.0000.ckpt"  # deeplab kidney
+  # checkpoint_path: "/mimer/NOBACKUP/groups/naiss2023-6-336/emulero/tumor-segmentator/benchmarking/65fp77sr/checkpoints/last.ckpt"  # deeplab brain
+  # checkpoint_path: "/mimer/NOBACKUP/groups/naiss2023-6-336/emulero/tumor-segmentator/benchmarking/xizznpm7/checkpoints/last.ckpt"  # deeplab lung
+  # checkpoint_path: "/mimer/NOBACKUP/groups/naiss2023-6-336/emulero/tumor-segmentator/benchmarking/6fxercj5/checkpoints/epoch=89-val_dice=0.0000.ckpt"  # unet breast
+  # checkpoint_path: "/mimer/NOBACKUP/groups/naiss2023-6-336/emulero/tumor-segmentator/benchmarking/u1p06cpx/checkpoints/epoch=66-val_dice=0.0000.ckpt"  # unet liver
+#   checkpoint_path: "/mimer/NOBACKUP/groups/naiss2023-6-336/emulero/tumor-segmentator/benchmarking/9m6umo7e/checkpoints/epoch=91-val_dice=0.0000.ckpt"  # unet kidney
+  # checkpoint_path: "/mimer/NOBACKUP/groups/naiss2023-6-336/emulero/tumor-segmentator/benchmarking/9m6umo7e/checkpoints/last.ckpt"
+  # checkpoint_path: "/mimer/NOBACKUP/groups/naiss2023-6-336/emulero/tumor-segmentator/benchmarking/r4k8md1a/checkpoints/last.ckpt"  # unet brain
+  # checkpoint_path: "/mimer/NOBACKUP/groups/naiss2023-6-336/emulero/tumor-segmentator/benchmarking/46haqze0/checkpoints/last.ckpt"  # unet lung
