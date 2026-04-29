@@ -237,25 +237,6 @@ def evaluate_folder_entry_point():
     compute_metrics_on_folder2(args.gt_folder, args.pred_folder, args.djfile, args.pfile, args.o, args.np, chill=args.chill)
 
 
-def evaluate_simple_entry_point():
-    import argparse
-    parser = argparse.ArgumentParser()
-    parser.add_argument('gt_folder', type=str, help='folder with gt segmentations')
-    parser.add_argument('pred_folder', type=str, help='folder with predicted segmentations')
-    parser.add_argument('-l', type=int, nargs='+', required=True,
-                        help='list of labels')
-    parser.add_argument('-il', type=int, required=False, default=None,
-                        help='ignore label')
-    parser.add_argument('-o', type=str, required=False, default=None,
-                        help='Output file. Optional. Default: pred_folder/summary.json')
-    parser.add_argument('-np', type=int, required=False, default=default_num_processes,
-                        help=f'number of processes used. Optional. Default: {default_num_processes}')
-    parser.add_argument('--chill', action='store_true', help='dont crash if folder_pred does not have all files that are present in folder_gt')
-
-    args = parser.parse_args()
-    compute_metrics_on_folder_simple(args.gt_folder, args.pred_folder, args.l, args.o, args.np, args.il, chill=args.chill)
-
-
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
