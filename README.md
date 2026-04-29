@@ -6,10 +6,12 @@ This repository contains a comprehensive benchmarking framework for tumor segmen
 
 ## Repository Contents
 
-The repository is organized into X main model implementations:
+The repository is organized into 5 main model implementations:
 
 - **nnUNetv2**: State-of-the-art automated medical image segmentation framework
 - **SAM-based**: Segment Anything Model variants adapted for medical imaging (forse faccio una per modello)
+- **MedSAM**:
+- **Medical SAM 2**:
 - **CNN**: Convolutional Neural Networks for tumor segmentation
 - **Swin UNETR**: Transformer-based architecture for medical image segmentation
 
