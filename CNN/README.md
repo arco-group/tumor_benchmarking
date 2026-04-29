@@ -33,15 +33,27 @@ srun --export=ALL python -u train.py \
      --data_dir tumor_benchmarking/nnUNetv2/Data/nnUNet_raw \
      --tumor tumor \
      --model model_name \
-     -batch_size batch_size\
+     -batch_size batch_size \
      -num_epoch num_epoch \
-     -num_classes num_classes \
+     -num_classes num_classes
 
 deactivate
 ```
 
+### Training Arguments
 
-```
+- `--data_dir`: Path to the directory containing the training data
+- `--tumor`: Type of tumor to train on
+- `--model`: Model architecture to use (e.g., DeepLabV3, U-Net)
+- `-batch_size`: Batch size for training
+- `-num_epoch`: Number of training epochs
+- `-num_classes`: Number of classes for segmentation
+
+## Inference
+
+To run inference on trained models, use the `inference.py` script. Below is an example bash command:
+
+```bash
 source venv/bin/activate
 
 srun --export=ALL python -u inference.py \
@@ -49,8 +61,17 @@ srun --export=ALL python -u inference.py \
      --tumor tumor \
      --model model_name \
      -checkpoint_path checkpoint_path \
-     -batch_size batch_size\
-     -num_classes num_classes \
+     -batch_size batch_size \
+     -num_classes num_classes
 
 deactivate
 ```
+
+### Inference Arguments
+
+- `--data_dir`: Path to the directory containing the test data
+- `--tumor`: Type of tumor to perform inference on
+- `--model`: Model architecture used for training
+- `-checkpoint_path`: Path to the trained model checkpoint
+- `-batch_size`: Batch size for inference
+- `-num_classes`: Number of classes for segmentation
