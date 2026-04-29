@@ -76,5 +76,3 @@ trainer = pl.Trainer(
 
 # Train the model
 trainer.fit(model, train_dataloader, test_dataloader)
-
-
