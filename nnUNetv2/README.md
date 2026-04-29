@@ -40,11 +40,27 @@ Train the selected configuration on all available folds:
 nnUNetv2_train DATASET_ID CONFIGURATION all
 ```
 
-## Optional inference
+## Inference
 
-If needed, predictions can be generated with:
+Predictions can be generated with:
 
 ```bash
-nnUNetv2_predict -i INPUT_TEST_FOLDER -o OUTPUT_FOLDER -d DATASET_NAME_OR_ID -c CONFIGURATION
+nnUNetv2_predict -i INPUT_FOLDER -o OUTPUT_FOLDER -d DATASET_NAME_OR_ID -c CONFIGURATION
 ```
 
+## Evaluation
+
+Predictions can be evaluated with:
+```
+source venv/bin/activate
+
+srun --export=ALL python -u nnUNetv2/evaluate.py \
+     --dataset_name dataset_name \
+     --nnunet_config nnunet_config \
+     --folder_ref folder_ref \
+     --folder_pred folder_pred \
+     --output_file output_file \
+     -labels_to_list 1 \
+
+deactivate
+```
