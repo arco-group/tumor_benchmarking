@@ -57,7 +57,7 @@ tumor_benchmarking/
 ├── Medical-SAM2/
 ├── MedSAM/
 ├── CNN/
-└── Swin UNETR/
+└── SwinUNETR/
 ```
 
 ### Train/Test Split Files
