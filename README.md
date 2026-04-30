@@ -17,7 +17,7 @@ The repository is organized into 5 main model implementations:
 
 ## Dataset Structure
 
-To ensure compatibility across all models, please organize your datasets following the structure below. This structure is consistent with nnUNet conventions for easy integration.
+To ensure compatibility across all models, the datasets were organized following the structure below. This structure is consistent with nnUNet conventions for easy integration.
 
 ### Directory Layout
 
@@ -85,13 +85,13 @@ Each model has its own implementation with detailed setup and training instructi
 
 All models and training scripts are ready to work with datasets organized according to the structure above. To train a model with your custom dataset:
 
-1. Organize your data following the directory structure provided above
+1. Organize your data following the provided directory structure
 2. Configure the `dataset.json` file with appropriate metadata
 3. Create `tumor_train.txt` and `tumor_test.txt` files with the required format
 4. Navigate to the desired model directory and follow the model-specific training instructions in its README
 
 ## Dataset Format Requirements
 
-Images and labels must be stored in `.nii.gz` format to ensure compatibility with our code. Case naming follows the nnUNet conventions described in the [nnUNet documentation](https://github.com/MIC-DKFZ/nnUNet/blob/master/documentation/dataset_format.md#what-do-training-cases-look-like). 
+Images and labels must be stored in `.nii.gz` format to ensure compatibility with our code. Case naming and `dataset.json` metadata follows the nnUNet conventions described in the [nnUNet documentation](https://github.com/MIC-DKFZ/nnUNet/blob/master/documentation/dataset_format.md#what-do-training-cases-look-like). 
 
 Note: we have also added an additional folder `LabelsTs/` containing ground-truth labels for test cases. This folder is not part of the original nnUNet dataset format but is included here to enable evaluation of our test sets using the ground-truth labels alongside the provided test images.
