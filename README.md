@@ -54,7 +54,8 @@ tumor_benchmarking/
 │   │   ├── nnUNet_preprocessed/
 │   │   └── nnUNet_results/
 │   └── ...
-├── SAM-based/
+├── Medical-SAM2/
+├── MedSAM/
 ├── CNN/
 └── Swin UNETR/
 ```
