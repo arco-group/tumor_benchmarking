@@ -79,14 +79,7 @@ Each line represents a specific slice of a sample, allowing 2D image handling fo
 
 ## Model-Specific Instructions
 
-Each model has its own implementation with detailed setup and training instructions:
-
-- **[nnUNetv2](nnUNetv2/README.md)**: Automated medical image segmentation
-- **[SAM-based Models](SAM-based/README.md)**: Prompt-guided segmentation
-- **[CNN](CNN/README.md)**: Convolutional neural network implementation
-- **[Swin UNETR](Swin%20UNETR/README.md)**: Transformer-based segmentation
-
-Please refer to each model's README for specific installation requirements, hyperparameters, and training procedures.
+Each model has its own implementation with detailed setup and training instructions, please refer to each model's README for specific installation requirements, hyperparameters, and training procedures.
 
 ## Using Your Own Dataset
 
