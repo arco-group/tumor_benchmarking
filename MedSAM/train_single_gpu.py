@@ -60,19 +60,13 @@ def show_box(box, ax):
 
 # set up parser
 parser = argparse.ArgumentParser()
-parser.add_argument( "-i", "--data_dir", type=str, default="/nnUNetv2/Data/nnUNet_raw", help="Path to training files")
-parser.add_argument( "-i", "--test_masks_dir", type=str, default="/nnUNetv2/Data/LabelsTs", help="Path to test files")
-parser.add_argument("-task_name", type=str, default="MedSAM-ViT-B")
-parser.add_argument("-tumor", type=str)
-parser.add_argument("-label", type=int, default=None)
-parser.add_argument("-model_type", type=str, default="vit_b")
-parser.add_argument("-checkpoint", type=str, default="work_dir/SAM/sam_vit_b_01ec64.pth")
+parser.add_argument("--data_dir", type=str, default="/nnUNetv2/Data/nnUNet_raw", help="Path to training files")
+parser.add_argument("--test_masks_dir", type=str, default="/nnUNetv2/Data/LabelsTs", help="Path to test files")
+parser.add_argument("--tumor", type=str)
+parser.add_argument("-checkpoint", type=str, default="sam_vit_b_01ec64.pth")
 parser.add_argument('-device', type=str, default='cuda:0')
-parser.add_argument("--load_pretrain", type=bool, default=True, help="load pretrain model")
-parser.add_argument("-pretrain_model_path", type=str, default="")
-parser.add_argument("-work_dir", type=str, default="./work_dir")
 # train
-parser.add_argument("-num_epochs", type=int, default=1000)
+parser.add_argument("-num_epochs", type=int, default=100)
 parser.add_argument("-batch_size", type=int, default=2)
 parser.add_argument("-num_workers", type=int, default=0)
 # Optimizer parameters
@@ -80,8 +74,8 @@ parser.add_argument("-weight_decay", type=float, default=0.01, help="weight deca
 parser.add_argument("-lr", type=float, default=0.0001, metavar="LR", help="learning rate (absolute lr)")
 parser.add_argument("-use_wandb", type=bool, default=False, help="use wandb to monitor training")
 parser.add_argument("-use_amp", action="store_true", default=False, help="use amp")
-parser.add_argument("--resume", type=str, default=None, help="Resuming training from checkpoint")
-parser.add_argument("--device", type=str, default="cuda:0")
+parser.add_argument("-resume", type=str, default=None, help="Resuming training from checkpoint")
+parser.add_argument("-device", type=str, default="cuda:0")
 args = parser.parse_args()
 
 if args.use_wandb:
@@ -90,33 +84,29 @@ if args.use_wandb:
     wandb.login(key='your_key')
     wandb.init(
         project="benchmarking",
-        name=args.task_name,
+        name=f'MedSAM_{args.tumor}',
         config={
             "lr": args.lr,
             "batch_size": args.batch_size,
             "data_path": args.data_dir,
-            "model_type": args.model_type,
         },
     )
 
-
 # set up model for training
 run_id = datetime.now().strftime("%Y%m%d-%H%M")
-model_save_path = join(args.work_dir, args.task_name + "-" + run_id)
+model_save_path = f'MedSAM_{args.tumor}-{run_id}'
 os.makedirs(model_save_path, exist_ok=True)
 shutil.copyfile(__file__, join(model_save_path, run_id + "_" + os.path.basename(__file__)))
 
 device = torch.device(args.device)
 
 # Set up model
-sam_model = sam_model_registry[args.model_type](checkpoint=args.checkpoint)
-
+sam_model = sam_model_registry["vit_b"](checkpoint=args.checkpoint)
 medsam_model = MedSAM(
     image_encoder=sam_model.image_encoder,
     mask_decoder=sam_model.mask_decoder,
     prompt_encoder=sam_model.prompt_encoder,
 ).to(device)
-
 medsam_model.train()
 
 img_mask_encdec_params = list(medsam_model.image_encoder.parameters()) + list(
@@ -135,7 +125,7 @@ ce_loss = nn.BCEWithLogitsLoss(reduction="mean")
 iter_num = 0
 losses = []
 best_loss = 1e10
-train_dataset  = MultiDataset(data_dir=args.data_dir, test_masks_dir=args.test_masks_dir, tumor=args.tumor, mode="Training")
+train_dataset  = MultiDataset(data_dir=args.data_dir, tumor=args.tumor, mode="Training")
 
 
 print("Number of training samples: ", len(train_dataset))
@@ -162,9 +152,6 @@ if args.use_amp:
 for epoch in range(start_epoch, args.num_epochs):
     epoch_loss = 0
     for step, batch in enumerate(tqdm(train_dataloader)):
-        if batch is None:
-            continue
-
         image, gt2D, boxes, _ = batch
         optimizer.zero_grad()
         boxes_np = boxes.detach().cpu().numpy()
@@ -194,17 +181,14 @@ for epoch in range(start_epoch, args.num_epochs):
     losses.append(epoch_loss)
     if args.use_wandb:
         wandb.log({"epoch_loss": epoch_loss})
-    print(
-        f'Time: {datetime.now().strftime("%Y%m%d-%H%M")}, Epoch: {epoch}, Loss: {epoch_loss}'
-    )
-    ## save the latest model
+    # save the latest model
     checkpoint = {
         "model": medsam_model.state_dict(),
         "optimizer": optimizer.state_dict(),
         "epoch": epoch,
     }
     torch.save(checkpoint, join(model_save_path, "medsam_model_latest.pth"))
-    ## save the best model
+    # save the best model
     if epoch_loss < best_loss:
         best_loss = epoch_loss
         checkpoint = {
@@ -219,5 +203,5 @@ for epoch in range(start_epoch, args.num_epochs):
     plt.title("Dice + Cross Entropy Loss")
     plt.xlabel("Epoch")
     plt.ylabel("Loss")
-    plt.savefig(join(model_save_path, args.task_name + "train_loss.png"))
+    plt.savefig(join(model_save_path, args.tumor + "train_loss.png"))
     plt.close()
