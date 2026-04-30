@@ -8,7 +8,6 @@ from torch.utils.data import Dataset
 
 from func_3d.utils import random_click, generate_bbox
 
-import cfg  # delete
 
 class MultiDataset(Dataset):
     def __init__(self, args, data_dir, transform=None, transform_msk=None, mode='Training', prompt='bbox', seed=None,
