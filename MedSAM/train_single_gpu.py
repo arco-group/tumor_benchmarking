@@ -1,3 +1,9 @@
+'''
+This file uses the code implementation from bowang-lab:
+https://github.com/bowang-lab/MedSAM
+The training code is adapted to fit our needs. The original code can be found here: https://github.com/bowang-lab/MedSAM/blob/main/train_one_gpu.py
+'''
+
 """
 train the image encoder and mask decoder
 freeze prompt image encoder

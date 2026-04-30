@@ -1,52 +1,36 @@
+'''
+This file uses the code implementation from bowang-lab:
+https://github.com/bowang-lab/MedSAM
+The inference code is adapted to fit our needs. The original code can be found here: https://github.com/bowang-lab/MedSAM/blob/main/MedSAM_Inference.py
+'''
+
+
 import numpy as np
-import matplotlib.pyplot as plt
 import os
-import random
 
 join = os.path.join
 import torch
+from model import MedSAM
+from dataset import MultiDataset
 from segment_anything import sam_model_registry
-from skimage import io, transform
 import torch.nn.functional as F
 import argparse
 from tqdm import tqdm
-from train_one_gpu_multidataset import NpyDataset, MedSAM
 from torchmetrics.segmentation import MeanIoU, GeneralizedDiceScore
-from torch.utils.data import Dataset, DataLoader
-from skimage.transform import resize
-import nibabel as nib
-import h5py
+from torch.utils.data import DataLoader
 import pandas as pd
 
 
-results = []
-
-"""Overlays a segmentation mask on a grayscale image."""
-color_map = np.array([
-    [255, 255, 0],  # Yellow
-    [255, 0, 255],  # Magenta
-    [0, 255, 255],  # Cyan
-], dtype=np.uint8)
-
-# visualization functions
-# source: https://github.com/facebookresearch/segment-anything/blob/main/notebooks/predictor_example.ipynb
-# change color to avoid red and green
-def show_mask(mask, ax, random_color=False):
-    if random_color:
-        color = np.concatenate([np.random.random(3), np.array([0.6])], axis=0)
-    else:
-        color = np.array([251 / 255, 252 / 255, 30 / 255, 0.6])
-    h, w = mask.shape[-2:]
-    mask_image = mask.reshape(h, w, 1) * color.reshape(1, 1, -1)
-    ax.imshow(mask_image)
-
-
-def show_box(box, ax):
-    x0, y0 = box[0], box[1]
-    w, h = box[2] - box[0], box[3] - box[1]
-    ax.add_patch(
-        plt.Rectangle((x0, y0), w, h, edgecolor="blue", facecolor=(0, 0, 0, 0), lw=2)
-    )
+parser = argparse.ArgumentParser()
+parser.add_argument("--data_dir", type=str, default="/nnUNetv2/Data/nnUNet_raw", help="Path to training files")
+parser.add_argument("--test_masks_dir", type=str, default="/nnUNetv2/Data/LabelsTs", help="Path to test files")
+parser.add_argument("--tumor", type=str)
+parser.add_argument("-checkpoint", type=str, default="sam_vit_b_01ec64.pth")
+parser.add_argument('-device', type=str, default='cuda:0')
+parser.add_argument("-rescale_bbox", type=float, default=None)
+parser.add_argument("-shift_percent", type=float, default=None)
+parser.add_argument("-zero_shot", type=bool, default=False)
+args = parser.parse_args()
 
 
 @torch.no_grad()
@@ -81,16 +65,7 @@ def medsam_inference(medsam_model, img_embed, box_1024, H, W):
     return medsam_seg
 
 
-parser = argparse.ArgumentParser()
-parser.add_argument("--data_dir", type=str, default="/nnUNetv2/Data/nnUNet_raw", help="Path to training files")
-parser.add_argument("--test_masks_dir", type=str, default="/nnUNetv2/Data/LabelsTs", help="Path to test files")
-parser.add_argument("--tumor", type=str)
-parser.add_argument("-checkpoint", type=str, default="sam_vit_b_01ec64.pth")
-parser.add_argument('-device', type=str, default='cuda:0')
-parser.add_argument("-rescale_bbox", type=float, default=None)
-parser.add_argument("-shift_percent", type=float, default=None)
-parser.add_argument("-zero_shot", type=bool, default=False)
-args = parser.parse_args()
+results = []
 
 device = args.device
 
@@ -114,7 +89,7 @@ gen_dice = GeneralizedDiceScore(num_classes=args.num_classes, per_class=True).to
 metric_miou = []
 metric_dice = []
 
-ts_dataset = NpyDataset(data_dir=args.data_dir, tumor=args.tumor, mode="Test", test_masks_dir=args.test_masks_dir, rescale_bbox=args.rescale_bbox, shift_percent=args.shift_percent)
+ts_dataset = MultiDataset(data_dir=args.data_dir, tumor=args.tumor, mode="Test", test_masks_dir=args.test_masks_dir, rescale_bbox=args.rescale_bbox, shift_percent=args.shift_percent)
 ts_dataloader = DataLoader(ts_dataset, batch_size=1, shuffle=False)
 
 for step, (image, gt2D, boxes, name) in enumerate(tqdm(ts_dataloader, desc='Processing samples', total=len(ts_dataloader))):
