@@ -1,22 +1,14 @@
 import os
-import time
 
 import torch
-import torch.optim as optim
-from tensorboardX import SummaryWriter
 import matplotlib.pyplot as plt
 from tqdm import tqdm
-from torchvision.utils import draw_segmentation_masks
-import torchvision.transforms.functional as F
 import numpy as np
 import random
 import pandas as pd
 import argparse
 
-import cfg
-from func_3d import function
-from conf import settings
-from func_3d.utils import get_network, set_log_dir, create_logger
+from func_3d.utils import get_network
 from func_3d.dataset import get_dataloader
 from func_3d.utils import eval_seg
 
@@ -52,6 +44,119 @@ parser.add_argument('-data_path', type=str, default='./data/btcv', help='The pat
 parser.add_argument('-rescale_bbox', type=float, default=None, help='Rescale of bounding box, i.e. 0.95 would give a bounding box a 95percent smaller')
 parser.add_argument('-shift_percent', type=float, default=None, help='Percent of bounding box shifting, i.e. 0.1 would move the bounding box a 10percent in a random direction')
 args = parser.parse_args()
+
+
+def resize_bbox(bbox, scale, image_shape):
+    """
+    bbox: tensor/list/array [x_min, y_min, x_max, y_max]
+    scale: float. 1.05 = +5%, 0.95 = -5%
+    image_shape: (H, W)
+
+    return: rescaled bbox and cropped to the image, as torch.tensor([x_min, y_min, x_max, y_max], dtype=torch.float32)
+    """
+    H, W = image_shape
+
+    if isinstance(bbox, torch.Tensor):
+        bbox = bbox.detach().cpu().float().tolist()
+
+    x_min, y_min, x_max, y_max = bbox
+
+    # centro
+    cx = (x_min + x_max) / 2.0
+    cy = (y_min + y_max) / 2.0
+
+    # ancho y alto originales
+    bw = x_max - x_min
+    bh = y_max - y_min
+
+    # nuevo ancho y alto
+    new_bw = bw * scale
+    new_bh = bh * scale
+
+    # reconstrucción
+    new_x_min = cx - new_bw / 2.0
+    new_x_max = cx + new_bw / 2.0
+    new_y_min = cy - new_bh / 2.0
+    new_y_max = cy + new_bh / 2.0
+
+    # clamp a la imagen
+    new_x_min = max(0, min(new_x_min, W - 1))
+    new_x_max = max(0, min(new_x_max, W - 1))
+    new_y_min = max(0, min(new_y_min, H - 1))
+    new_y_max = max(0, min(new_y_max, H - 1))
+
+    return torch.tensor([new_x_min, new_y_min, new_x_max, new_y_max], dtype=torch.float32)
+
+
+def shift_bbox(bbox, shift_percent, image_shape, direction=None, return_direction=False):
+    """
+    Shifts bbow without changing its size.
+
+    Args:
+        bbox: tensor/list/array [x_min, y_min, x_max, y_max]
+        shift_percent: float, por ejemplo 0.05, 0.10, 0.20
+        image_shape: (H, W)
+        direction: None or one of (if None, randomly chosen):
+            ['left', 'right', 'up', 'down',
+             'up_left', 'up_right', 'down_left', 'down_right']
+        return_direction: bool
+
+    Returns:
+        shifted bbox as torch.tensor([x_min, y_min, x_max, y_max], dtype=torch.float32)
+        optionally the used direction
+    """
+    H, W = image_shape
+
+    if isinstance(bbox, torch.Tensor):
+        bbox = bbox.detach().cpu().float().view(-1).tolist()
+    else:
+        bbox = np.array(bbox, dtype=np.float32).reshape(-1).tolist()
+
+    x_min, y_min, x_max, y_max = bbox
+
+    bw = x_max - x_min
+    bh = y_max - y_min
+
+    directions = {
+        "left": (-1, 0),
+        "right": (1, 0),
+        "up": (0, -1),
+        "down": (0, 1),
+        "up_left": (-1, -1),
+        "up_right": (1, -1),
+        "down_left": (-1, 1),
+        "down_right": (1, 1),
+    }
+
+    if direction is None:
+        direction = random.choice(list(directions.keys()))
+
+    if direction not in directions:
+        raise ValueError(f"Dirección no válida: {direction}. Opciones: {list(directions.keys())}")
+
+    sx, sy = directions[direction]
+
+    dx = sx * bw * shift_percent
+    dy = sy * bh * shift_percent
+
+    dx = max(-x_min, min(dx, (W - 1) - x_max))
+    dy = max(-y_min, min(dy, (H - 1) - y_max))
+
+    new_x_min = x_min + dx
+    new_x_max = x_max + dx
+    new_y_min = y_min + dy
+    new_y_max = y_max + dy
+
+    result = torch.tensor([
+        int(round(new_x_min)),
+        int(round(new_y_min)),
+        int(round(new_x_max)),
+        int(round(new_y_max)),
+    ], dtype=torch.int64)
+
+    if return_direction:
+        return result, direction
+    return result
 
 
 def overlay_segmentation(image, segmentation, alpha=0.5):
@@ -110,13 +215,10 @@ global_iou_sum = 0.0
 global_dice_sum = 0.0
 global_count = 0
 
-# Métricas por clase dinámicas
-# class_results[label] = {"iou_sum": float, "dice_sum": float, "count": int}
 class_results = {}
 
 results = []
 
-# Casos válidos reales
 valid_cases = 0
 
 for pack in tqdm(nice_test_loader, total=len(nice_test_loader), desc='Validation round', unit='batch', leave=False):
@@ -218,7 +320,7 @@ for pack in tqdm(nice_test_loader, total=len(nice_test_loader), desc='Validation
             masks = []
 
             for ann_obj_id in obj_list:
-                # Predicción
+                # Prediction
                 try:
                     pred = video_segments[id][ann_obj_id]
                 except KeyError:
@@ -290,7 +392,6 @@ for pack in tqdm(nice_test_loader, total=len(nice_test_loader), desc='Validation
                 )
                 plt.close()
 
-# Impresión final
 if global_count > 0:
     eiou = global_iou_sum / global_count
     edice = global_dice_sum / global_count
@@ -298,7 +399,6 @@ else:
     eiou = np.nan
     edice = np.nan
 
-# Ordenar labels para imprimir bonito
 sorted_labels = sorted(class_results.keys(), key=lambda x: float(x))
 
 for cls in sorted_labels:
