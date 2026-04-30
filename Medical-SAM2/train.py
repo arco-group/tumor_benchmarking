@@ -1,7 +1,11 @@
-# train.py
-#!/usr/bin/env	python3
+'''
+This file uses the code implementation from ImprintLab:
+https://github.com/ImprintLab/Medical-SAM2
+The training code is adapted to fit our needs. The original code can be found here: https://github.com/ImprintLab/Medical-SAM2/blob/main/train_3d.py
+'''
 
-""" train network using pytorch
+""" 
+    train network using pytorch
     Yunli Qi
 """
 
