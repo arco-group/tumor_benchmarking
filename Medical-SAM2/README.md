@@ -4,7 +4,7 @@ This repository contains the code used to train and evaluate Medical SAM 2 on cu
 
 ## Installation
 
-Install Medical SAM 2 and download the required weights by following the instructions in the [official repository](https://github.com/ImprintLab/Medical-SAM2)
+Install Medical SAM 2 and download the required weights by following the instructions in the [official repository](https://github.com/ImprintLab/Medical-SAM2).
 
 ## Using a Custom Dataset
 
@@ -18,6 +18,22 @@ elif args.dataset == 'multi_dataset':
     nice_train_loader = DataLoader(multi_train_dataset, batch_size=1, shuffle=True, num_workers=8, pin_memory=True)
     nice_test_loader = DataLoader(multi_test_dataset, batch_size=1, shuffle=False, num_workers=1, pin_memory=True)
 ```
+
+### Dataset Configuration
+
+In the `multi_dataset.py` file, the `MultiDataset` class contains a dictionary called `tumor_path_labels` that maps tumor types to their corresponding dataset folder names in the nnUNet_raw directory. This dictionary looks like:
+
+```python
+tumor_path_labels = {
+    'lung': 'Dataset002_Lung1',
+    'breast': 'Dataset008_ISPY1',
+    'liver': 'Dataset009_Liver2',
+    'kidney': 'Dataset012_Kidney',
+    'brain': 'Dataset004_BraTS'
+}
+```
+
+**Important**: You must modify this dictionary to match your own dataset folder names and tumor types. Each key should correspond to the tumor type you use as the `-tumor` argument, and each value should be the exact folder name in your `nnUNet_raw` directory.
 
 ## Training
 
