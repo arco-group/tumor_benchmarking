@@ -58,6 +58,7 @@ source venv/bin/activate
 
 srun --export=ALL python -u inference.py \
      --data_dir tumor_benchmarking/nnUNetv2/Data/nnUNet_raw \
+     --test_masks_dir tumor_benchmarking/nnUNetv2/Data/LabelsTs \
      --tumor tumor \
      --model model_name \
      -checkpoint_path checkpoint_path \
@@ -70,6 +71,7 @@ deactivate
 ### Inference Arguments
 
 - `--data_dir`: Path to the directory containing the test data
+– `--test_masks_dir`: Path to the directory containing the test data
 - `--tumor`: Type of tumor to perform inference on
 - `--model`: Model architecture used for training
 - `-checkpoint_path`: Path to the trained model checkpoint

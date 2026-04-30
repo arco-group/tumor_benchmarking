@@ -29,12 +29,9 @@ mask_transform = transforms.Compose([
 
 # Create Dataset
 training_data = dataset.MultiDataset(data_dir=args.data_dir, tumor=args.tumor, mode="Training", transform=transform, mask_transform=mask_transform, num_classes=args.num_classes)
-test_data = dataset.MultiDataset(data_dir=args.data_dir, tumor=args.tumor, mode="Test", transform=transform, mask_transform=mask_transform, num_classes=args.num_classes)
 
 # Create PyTorch DataLoader
 train_dataloader = DataLoader(training_data, batch_size=args.batch_size, shuffle=True, num_workers=2, pin_memory=False)
-test_dataloader = DataLoader(test_data, batch_size=args.batch_size, shuffle=False, num_workers=2, pin_memory=False)
-
 
 # Instantiate the LightningModule
 if args.model == "unet":
@@ -75,4 +72,4 @@ trainer = pl.Trainer(
 )
 
 # Train the model
-trainer.fit(model, train_dataloader, test_dataloader)
+trainer.fit(model, train_dataloader)

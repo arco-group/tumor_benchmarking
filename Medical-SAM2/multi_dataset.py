@@ -1,7 +1,6 @@
 import os
 import numpy as np
 import torch
-import yaml
 from PIL import Image
 import nibabel as nib
 from torch.utils.data import Dataset

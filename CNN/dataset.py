@@ -6,7 +6,7 @@ import torch.nn.functional as F
 
 
 class MultiDataset(Dataset):
-    def __init__(self, data_dir, tumor, mode="Training", transform=None, mask_transform=None, num_classes=2):
+    def __init__(self, data_dir, tumor, mode="Training", transform=None, mask_transform=None, num_classes=2, test_masks_dir=None):
         """ Lung dataset class
 
         Args:
@@ -27,9 +27,10 @@ class MultiDataset(Dataset):
         self.task = tumor_path_labels[tumor]
         self.dataset = self.task.split('_')[-1]
         self.data_path = data_dir + '/' + self.task
+        self.test_masks_dir = test_masks_dir
 
         if not self.mode == 'Training':
-            self.mask_path = os.path.join("/nnUNetv2/Data/LabelsTs", f'{self.dataset}_labelsTs')  
+            self.mask_path = os.path.join(f'{self.test_masks_dir}/{self.dataset}_labelsTs')  
             self.img_path = os.path.join(self.data_path, "imagesTs") 
             samples_path = os.path.join(self.data_path, f'{tumor}_test.txt')
         else:

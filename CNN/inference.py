@@ -14,6 +14,7 @@ from tumor_benchmarking.CNN import pl_model
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--data_dir", type=str)
+parser.add_argument("--test_masks_dir", type=str)
 parser.add_argument("--tumor", type=str, choices=["lung", "liver", "kidney", "brain", "breast"])
 parser.add_argument("--model", type=str, choices=["deeplabv3_resnet101", "unet"])
 parser.add_argument("--checkpoint_path", type=str)
@@ -129,8 +130,8 @@ mask_transform = transforms.Compose([
 ])
 
 # Create Dataset and Dataloader
-test_data = dataset.MultiDataset(data_dir=args.data_dir, tumor=args.tumor, mode="Test", transform=transform, mask_transform=mask_transform, num_classes=args.num_classes)
-test_loader = DataLoader(test_data, batch_size=args.batch_size, shuffle=False, num_workers=config["training"].get("num_workers", 2), pin_memory=False)
+test_data = dataset.MultiDataset(data_dir=args.data_dir, tumor=args.tumor, mode="Test", transform=transform, mask_transform=mask_transform, num_classes=args.num_classes, test_masks_dir=args.test_masks_dir)
+test_loader = DataLoader(test_data, batch_size=args.batch_size, shuffle=False, num_workers=2, pin_memory=False)
 
 # Instantiate the LightningModule
 if args.model == "unet":
@@ -153,7 +154,7 @@ metrics, per_case_df = evaluate_semantic(
     model=model,
     dataloader=test_loader,
     device=device,
-    num_classes=config["training"]["num_classes"],
+    num_classes=args.num_classes,
 )
 
 out_dir = os.path.join("results", f"{args.model}_{args.tumor}")

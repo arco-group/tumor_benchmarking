@@ -53,20 +53,20 @@ def resize_bbox(bbox, scale, image_shape):
 
 def shift_bbox(bbox, shift_percent, image_shape, direction=None, return_direction=False):
     """
-    Desplaza una bbox sin cambiar su tamaño.
+    Shifts bbow without changing its size.
 
     Args:
         bbox: tensor/list/array [x_min, y_min, x_max, y_max]
         shift_percent: float, por ejemplo 0.05, 0.10, 0.20
         image_shape: (H, W)
-        direction: None o una de:
+        direction: None or one of (if None, randomly chosen):
             ['left', 'right', 'up', 'down',
              'up_left', 'up_right', 'down_left', 'down_right']
         return_direction: bool
 
     Returns:
-        bbox desplazada como torch.tensor([x_min, y_min, x_max, y_max], dtype=torch.float32)
-        opcionalmente también la dirección usada
+        shifted bbox as torch.tensor([x_min, y_min, x_max, y_max], dtype=torch.float32)
+        optionally the used direction
     """
     H, W = image_shape
 
@@ -99,11 +99,9 @@ def shift_bbox(bbox, shift_percent, image_shape, direction=None, return_directio
 
     sx, sy = directions[direction]
 
-    # Desplazamiento en píxeles relativo al tamaño de la bbox
     dx = sx * bw * shift_percent
     dy = sy * bh * shift_percent
 
-    # Limitar el shift para que la bbox no salga de la imagen
     dx = max(-x_min, min(dx, (W - 1) - x_max))
     dy = max(-y_min, min(dy, (H - 1) - y_max))
 
@@ -125,7 +123,7 @@ def shift_bbox(bbox, shift_percent, image_shape, direction=None, return_directio
 
 
 class MultiDataset(Dataset):
-    def __init__(self, data_dir, tumor, mode="Training", bbox_shift=0, label=None, rescale_bbox=None, shift_percent=None):
+    def __init__(self, data_dir, tumor, mode="Training", bbox_shift=0, rescale_bbox=None, shift_percent=None, test_masks_dir=None):
 
         tumor_path_labels = {'lung': 'Dataset002_Lung1',
                         'breast': 'Dataset008_ISPY1',
@@ -139,17 +137,12 @@ class MultiDataset(Dataset):
         self.task = tumor_path_labels[tumor]
         self.dataset = self.task.split('_')[-1]
         self.data_path = data_dir + '/' + self.task
-
-        if self.tumor == "brain":
-            self.label = label
+        self.test_masks_dir = test_masks_dir
 
         if not self.mode == 'Training':
-            self.mask_path = os.path.join("/mimer/NOBACKUP/groups/naiss2023-6-336/emulero/nnUNetv2/Data/LabelsTs", f'{self.dataset}_labelsTs')  
+            self.mask_path = os.path.join(f'{self.test_masks_dir}/{self.dataset}_labelsTs')  
             self.img_path = os.path.join(self.data_path, "imagesTs") 
-            if self.tumor == "brain":
-                file_path = os.path.join(self.data_path, f'{self.tumor}_{self.label}_test_pos.txt')
-            else:
-                file_path = os.path.join(self.data_path, f'{self.tumor}_test_pos.txt')
+            file_path = os.path.join(self.data_path, f'{self.tumor}_test.txt')
 
         else:
             self.mask_path = os.path.join(self.data_path, "labelsTr")  

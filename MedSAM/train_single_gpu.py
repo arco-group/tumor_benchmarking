@@ -1,10 +1,8 @@
-# -*- coding: utf-8 -*-
 """
 train the image encoder and mask decoder
 freeze prompt image encoder
 """
 
-# setup environment
 import numpy as np
 import matplotlib.pyplot as plt
 import os
@@ -60,27 +58,17 @@ def show_box(box, ax):
         plt.Rectangle((x0, y0), w, h, edgecolor="blue", facecolor=(0, 0, 0, 0), lw=2)
     )
 
-
 # set up parser
 parser = argparse.ArgumentParser()
-parser.add_argument(
-    "-i",
-    "--tr_npy_path",
-    type=str,
-    default="/mimer/NOBACKUP/groups/naiss2023-6-336/emulero/nnUNetv2/Data/nnUNet_raw",
-    help="path to training npy files; two subfolders: gts and imgs",
-)
+parser.add_argument( "-i", "--data_dir", type=str, default="/nnUNetv2/Data/nnUNet_raw", help="Path to training files")
+parser.add_argument( "-i", "--test_masks_dir", type=str, default="/nnUNetv2/Data/LabelsTs", help="Path to test files")
 parser.add_argument("-task_name", type=str, default="MedSAM-ViT-B")
 parser.add_argument("-tumor", type=str)
 parser.add_argument("-label", type=int, default=None)
 parser.add_argument("-model_type", type=str, default="vit_b")
-parser.add_argument(
-    "-checkpoint", type=str, default="work_dir/SAM/sam_vit_b_01ec64.pth"
-)
-# parser.add_argument('-device', type=str, default='cuda:0')
-parser.add_argument(
-    "--load_pretrain", type=bool, default=True, help="load pretrain model"
-)
+parser.add_argument("-checkpoint", type=str, default="work_dir/SAM/sam_vit_b_01ec64.pth")
+parser.add_argument('-device', type=str, default='cuda:0')
+parser.add_argument("--load_pretrain", type=bool, default=True, help="load pretrain model")
 parser.add_argument("-pretrain_model_path", type=str, default="")
 parser.add_argument("-work_dir", type=str, default="./work_dir")
 # train
@@ -88,19 +76,11 @@ parser.add_argument("-num_epochs", type=int, default=1000)
 parser.add_argument("-batch_size", type=int, default=2)
 parser.add_argument("-num_workers", type=int, default=0)
 # Optimizer parameters
-parser.add_argument(
-    "-weight_decay", type=float, default=0.01, help="weight decay (default: 0.01)"
-)
-parser.add_argument(
-    "-lr", type=float, default=0.0001, metavar="LR", help="learning rate (absolute lr)"
-)
-parser.add_argument(
-    "-use_wandb", type=bool, default=False, help="use wandb to monitor training"
-)
+parser.add_argument("-weight_decay", type=float, default=0.01, help="weight decay (default: 0.01)")
+parser.add_argument("-lr", type=float, default=0.0001, metavar="LR", help="learning rate (absolute lr)")
+parser.add_argument("-use_wandb", type=bool, default=False, help="use wandb to monitor training")
 parser.add_argument("-use_amp", action="store_true", default=False, help="use amp")
-parser.add_argument(
-    "--resume", type=str, default=None, help="Resuming training from checkpoint"
-)
+parser.add_argument("--resume", type=str, default=None, help="Resuming training from checkpoint")
 parser.add_argument("--device", type=str, default="cuda:0")
 args = parser.parse_args()
 
@@ -114,7 +94,7 @@ if args.use_wandb:
         config={
             "lr": args.lr,
             "batch_size": args.batch_size,
-            "data_path": args.tr_npy_path,
+            "data_path": args.data_dir,
             "model_type": args.model_type,
         },
     )
@@ -155,7 +135,7 @@ ce_loss = nn.BCEWithLogitsLoss(reduction="mean")
 iter_num = 0
 losses = []
 best_loss = 1e10
-train_dataset  = MultiDataset(data_dir=args.data_dir, tumor=args.tumor, mode="Training")
+train_dataset  = MultiDataset(data_dir=args.data_dir, test_masks_dir=args.test_masks_dir, tumor=args.tumor, mode="Training")
 
 
 print("Number of training samples: ", len(train_dataset))

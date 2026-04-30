@@ -1,25 +1,9 @@
-# setup environment
-import numpy as np
-import matplotlib.pyplot as plt
 import os
 
 join = os.path.join
-from tqdm import tqdm
-from skimage import transform
 import torch
 import torch.nn as nn
-from torch.utils.data import Dataset, DataLoader
-import monai
-from segment_anything import sam_model_registry
 import torch.nn.functional as F
-import argparse
-import random
-from datetime import datetime
-import shutil
-import glob
-import cv2
-from skimage.transform import resize
-import h5py
 
 
 class MedSAM(nn.Module):
