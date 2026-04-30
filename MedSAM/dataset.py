@@ -1,3 +1,9 @@
+'''
+This file uses the code implementation from bowang-lab:
+https://github.com/bowang-lab/MedSAM
+The original NpyDataset class is adapted into MultiDataset class to fit our needs. The original code can be found here: https://github.com/bowang-lab/MedSAM/blob/main/train_one_gpu.py
+'''
+
 import numpy as np
 import os
 
@@ -24,25 +30,20 @@ def resize_bbox(bbox, scale, image_shape):
 
     x_min, y_min, x_max, y_max = bbox
 
-    # centro
     cx = (x_min + x_max) / 2.0
     cy = (y_min + y_max) / 2.0
 
-    # ancho y alto originales
     bw = x_max - x_min
     bh = y_max - y_min
 
-    # nuevo ancho y alto
     new_bw = bw * scale
     new_bh = bh * scale
 
-    # reconstrucción
     new_x_min = cx - new_bw / 2.0
     new_x_max = cx + new_bw / 2.0
     new_y_min = cy - new_bh / 2.0
     new_y_max = cy + new_bh / 2.0
 
-    # clamp a la imagen
     new_x_min = max(0, min(new_x_min, W - 1))
     new_x_max = max(0, min(new_x_max, W - 1))
     new_y_min = max(0, min(new_y_min, H - 1))

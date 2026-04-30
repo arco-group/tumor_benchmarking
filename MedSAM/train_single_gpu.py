@@ -65,9 +65,9 @@ def show_box(box, ax):
     )
 
 # set up parser
+
 parser = argparse.ArgumentParser()
 parser.add_argument("--data_dir", type=str, default="/nnUNetv2/Data/nnUNet_raw", help="Path to training files")
-parser.add_argument("--test_masks_dir", type=str, default="/nnUNetv2/Data/LabelsTs", help="Path to test files")
 parser.add_argument("--tumor", type=str)
 parser.add_argument("-checkpoint", type=str, default="sam_vit_b_01ec64.pth")
 parser.add_argument('-device', type=str, default='cuda:0')
