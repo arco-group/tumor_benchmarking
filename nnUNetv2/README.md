@@ -52,8 +52,6 @@ nnUNetv2_predict -i INPUT_FOLDER -o OUTPUT_FOLDER -d DATASET_NAME_OR_ID -c CONFI
 
 Predictions can be evaluated with:
 ```
-source venv/bin/activate
-
 srun --export=ALL python -u nnUNetv2/evaluate.py \
      --dataset_name dataset_name \
      --nnunet_config nnunet_config \
@@ -61,6 +59,4 @@ srun --export=ALL python -u nnUNetv2/evaluate.py \
      --folder_pred folder_pred \
      --output_file output_file \
      -labels_to_list 1 \
-
-deactivate
 ```
