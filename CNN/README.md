@@ -27,8 +27,6 @@ tumor_path_labels = {
 To train a model, use the `train.py` script. Below is an example bash command with the required arguments:
 
 ```bash
-source venv/bin/activate
-
 srun --export=ALL python -u train.py \
      --data_dir tumor_benchmarking/nnUNetv2/Data/nnUNet_raw \
      --tumor tumor \
@@ -36,8 +34,6 @@ srun --export=ALL python -u train.py \
      -batch_size batch_size \
      -num_epoch num_epoch \
      -num_classes num_classes
-
-deactivate
 ```
 
 ### Training Arguments
@@ -54,8 +50,6 @@ deactivate
 To run inference on trained models, use the `inference.py` script. Below is an example bash command:
 
 ```bash
-source venv/bin/activate
-
 srun --export=ALL python -u inference.py \
      --data_dir tumor_benchmarking/nnUNetv2/Data/nnUNet_raw \
      --test_masks_dir tumor_benchmarking/nnUNetv2/Data/LabelsTs \
@@ -64,8 +58,6 @@ srun --export=ALL python -u inference.py \
      -checkpoint_path checkpoint_path \
      -batch_size batch_size \
      -num_classes num_classes
-
-deactivate
 ```
 
 ### Inference Arguments
