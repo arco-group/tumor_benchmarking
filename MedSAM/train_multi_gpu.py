@@ -109,7 +109,7 @@ if torch.cuda.is_available():
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--data_dir", type=str, default="/nnUNetv2/Data/nnUNet_raw", help="Path to training files")
-parser.add_argument("-tumor", type=str)
+parser.add_argument("--tumor", type=str)
 parser.add_argument("-checkpoint", type=str, default="sam_vit_b_01ec64.pth")
 # train
 parser.add_argument("-num_epochs", type=int, default=100)

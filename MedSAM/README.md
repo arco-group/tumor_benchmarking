@@ -24,7 +24,7 @@ tumor_path_labels = {
 
 ## Training
 
-From the project root, you can launch training with:
+From the project root, you can launch a single-GPU training with:
 
 ```bash
 srun --export=ALL python -u train_single_gpu.py \
@@ -35,13 +35,30 @@ srun --export=ALL python -u train_single_gpu.py \
     -use_wandb True \
 ```
 
+For multi-GPU training, launch DDP with `torchrun`:
+
 ```bash
-srun --export=ALL python -u train_multi_gpu.py \
-    -data_dir /nnUNetv2/Data/nnUNet_raw \
-    -tumor tumor \
+NUM_GPUS="${NUM_GPUS:-4}"
+MASTER_PORT="${MASTER_PORT:-29501}"
+
+torchrun \
+    --nnodes=1 \
+    --nproc_per_node="${NUM_GPUS}" \
+    --master_port="${MASTER_PORT}" \
+    train_multi_gpu.py \
+    --data_dir /nnUNetv2/Data/nnUNet_raw \
+    --tumor tumor \
     -num_epochs num_epochs \
-    -batch_size batch_size \
-    -use_wandb True \
+    -batch_size batch_size_per_gpu \
+    -use_wandb True
+```
+
+`NUM_GPUS` should match the number of available GPUs. The `-batch_size` argument is the batch size per GPU.
+
+To resume a previous run, add:
+
+```bash
+-resume /path/to/checkponts/medsam_model_latest.pth
 ```
 
 ## Inference
