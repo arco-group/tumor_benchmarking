@@ -57,12 +57,15 @@ torchrun \
 
 `-batch_size` is the batch size per GPU, so the effective batch size is `batch_size x NUM_GPUS`.
 
+The default code uses `-checkpoint sam_vit_b_01ec64.pth` to start fine-tuning from the original SAM ViT-B weights, make sure to place the downloaded weights in the correct directory.
+
 Useful optional arguments:
 
 ```bash
--checkpoint sam_vit_b_01ec64.pth
 -resume /path/to/MedSAM_tumor-YYYYMMDD-HHMMSS/medsam_model_latest.pth
 ```
+
+Use `-resume /path/to/MedSAM_tumor-YYYYMMDD-HHMMSS/medsam_model_latest.pth` to continue an interrupted training run from the latest saved state, for example after a crash or manual stop.
 
 ## Inference
 
