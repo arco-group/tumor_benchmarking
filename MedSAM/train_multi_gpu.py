@@ -129,11 +129,7 @@ wandb_run = None
 if args.use_wandb and is_main_process():
     import wandb
 
-    if args.wandb_api_key:
-        wandb.login(key=args.wandb_api_key)
-    else:
-        wandb.login()
-
+    wandb.login(key="your_key")
     wandb_run = wandb.init(
         project="benchmarking",
         name=f'MedSAM_{args.tumor}',

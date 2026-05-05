@@ -20,22 +20,24 @@ tumor_path_labels = {
 }
 ```
 
-**Important**: You must modify this dictionary to match your own dataset folder names and tumor types. Each key should correspond to the tumor type you use as the `-tumor` argument, and each value should be the exact folder name in your `nnUNet_raw` directory.
+**Important**: You must modify this dictionary to match your own dataset folder names and tumor types. Each key should correspond to the tumor type you use as the `--tumor` argument, and each value should be the exact folder name in your `nnUNet_raw` directory.
 
 ## Training
 
-From the project root, you can launch a single-GPU training with:
+Run training from the `MedSAM` directory.
+
+Single GPU:
 
 ```bash
-srun --export=ALL python -u train_single_gpu.py \
-    -data_dir /nnUNetv2/Data/nnUNet_raw \
-    -tumor tumor \
-    -num_epochs num_epochs \
-    -batch_size batch_size \
-    -use_wandb True \
+python -u train_single_gpu.py \
+    --data_dir /nnUNetv2/Data/nnUNet_raw \
+    --tumor tumor \
+    -num_epochs 100 \
+    -batch_size 2 \
+    -use_wandb False
 ```
 
-For multi-GPU training, launch DDP with `torchrun`:
+Multi-GPU with DDP:
 
 ```bash
 NUM_GPUS="${NUM_GPUS:-4}"
@@ -48,33 +50,56 @@ torchrun \
     train_multi_gpu.py \
     --data_dir /nnUNetv2/Data/nnUNet_raw \
     --tumor tumor \
-    -num_epochs num_epochs \
-    -batch_size batch_size_per_gpu \
-    -use_wandb True
+    -num_epochs 100 \
+    -batch_size 2 \
+    -use_wandb False
 ```
 
-`NUM_GPUS` should match the number of available GPUs. The `-batch_size` argument is the batch size per GPU.
+`-batch_size` is the batch size per GPU, so the effective batch size is `batch_size x NUM_GPUS`.
 
-To resume a previous run, add:
+Useful optional arguments:
 
 ```bash
--resume /path/to/checkponts/medsam_model_latest.pth
+-checkpoint sam_vit_b_01ec64.pth
+-resume /path/to/MedSAM_tumor-YYYYMMDD-HHMMSS/medsam_model_latest.pth
 ```
 
 ## Inference
 
-From the project root, you can launch inference with:
+Run inference from the `MedSAM` directory.
+
+Fine-tuned MedSAM model:
 
 ```bash
-srun --export=ALL python -u inference.py \
-    -data_dir /nnUNetv2/Data/nnUNet_raw \
-    -test_masks_dir /nnUNetv2/Data/LabelsTs \
-    -tumor tumor \
-    -checkpoint checkpoint_path \
-    -rescale_bbox None \
-    -shift_percent None \
-    -zero-shot False
+python -u inference.py \
+    --data_dir /nnUNetv2/Data/nnUNet_raw \
+    --test_masks_dir /nnUNetv2/Data/LabelsTs \
+    --tumor tumor \
+    -checkpoint /path/to/MedSAM_tumor-YYYYMMDD-HHMMSS/medsam_model_best.pth \
+    -zero_shot False
 ```
-For zero-shot inference, set `-sam_ckpt sam_vit_b_01ec64.pth` or change path on default values in the parser of inference.py.
 
-The `-rescale_bbox` and `-shift_percent` arguments can be used to tighten, expand, or shift bounding boxes during inference.
+Zero-shot SAM baseline:
+
+```bash
+python -u inference.py \
+    --data_dir /nnUNetv2/Data/nnUNet_raw \
+    --test_masks_dir /nnUNetv2/Data/LabelsTs \
+    --tumor tumor \
+    -checkpoint sam_vit_b_01ec64.pth \
+    -zero_shot True
+```
+
+Optional bounding-box controls:
+
+```bash
+-rescale_bbox 1.05
+-shift_percent 0.10
+```
+
+Leave them unset to keep the default bounding boxes. 
+
+## Notes
+
+`-use_wandb` is disabled by default. If you enable it, make sure your Weights & Biases credentials are configured first.
+
