@@ -25,6 +25,7 @@ from datetime import datetime
 import shutil
 from torch.utils.data._utils.collate import default_collate
 from dataset import MultiDataset
+from model import MedSAM
 
 
 def collate_skip_none(batch):
@@ -38,31 +39,12 @@ def collate_skip_none(batch):
 torch.manual_seed(2023)
 torch.cuda.empty_cache()
 
-# torch.distributed.init_process_group(backend="gloo")
-
 os.environ["OMP_NUM_THREADS"] = "4"  # export OMP_NUM_THREADS=4
 os.environ["OPENBLAS_NUM_THREADS"] = "4"  # export OPENBLAS_NUM_THREADS=4
 os.environ["MKL_NUM_THREADS"] = "6"  # export MKL_NUM_THREADS=6
 os.environ["VECLIB_MAXIMUM_THREADS"] = "4"  # export VECLIB_MAXIMUM_THREADS=4
 os.environ["NUMEXPR_NUM_THREADS"] = "6"  # export NUMEXPR_NUM_THREADS=6
 
-
-def show_mask(mask, ax, random_color=False):
-    if random_color:
-        color = np.concatenate([np.random.random(3), np.array([0.6])], axis=0)
-    else:
-        color = np.array([251 / 255, 252 / 255, 30 / 255, 0.6])
-    h, w = mask.shape[-2:]
-    mask_image = mask.reshape(h, w, 1) * color.reshape(1, 1, -1)
-    ax.contour(mask_image[:, :, 0])
-
-
-def show_box(box, ax):
-    x0, y0 = box[0], box[1]
-    w, h = box[2] - box[0], box[3] - box[1]
-    ax.add_patch(
-        plt.Rectangle((x0, y0), w, h, edgecolor="blue", facecolor=(0, 0, 0, 0), lw=2)
-    )
 
 # set up parser
 parser = argparse.ArgumentParser()
@@ -122,8 +104,6 @@ optimizer = torch.optim.AdamW(
 )
 
 seg_loss = monai.losses.DiceLoss(sigmoid=True, squared_pred=True, reduction="mean")
-
-# Cross entropy loss
 ce_loss = nn.BCEWithLogitsLoss(reduction="mean")
 
 # train
@@ -132,8 +112,6 @@ losses = []
 best_loss = 1e10
 train_dataset  = MultiDataset(data_dir=args.data_dir, tumor=args.tumor, mode="Training")
 
-
-print("Number of training samples: ", len(train_dataset))
 train_dataloader = DataLoader(
     train_dataset,
     batch_size=args.batch_size,
@@ -146,7 +124,7 @@ train_dataloader = DataLoader(
 start_epoch = 0
 if args.resume is not None:
     if os.path.isfile(args.resume):
-        ## Map model to be loaded to specified single GPU
+        # Map model to be loaded to specified single GPU
         checkpoint = torch.load(args.resume, map_location=device)
         start_epoch = checkpoint["epoch"] + 1
         medsam_model.load_state_dict(checkpoint["model"])
@@ -162,7 +140,7 @@ for epoch in range(start_epoch, args.num_epochs):
         boxes_np = boxes.detach().cpu().numpy()
         image, gt2D = image.to(device), gt2D.to(device)
         if args.use_amp:
-            ## AMP
+            # AMP
             with torch.autocast(device_type="cuda", dtype=torch.float16):
                 medsam_pred = medsam_model(image, boxes_np)
                 loss = seg_loss(medsam_pred, gt2D) + ce_loss(

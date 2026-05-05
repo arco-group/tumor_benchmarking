@@ -35,6 +35,15 @@ srun --export=ALL python -u train_single_gpu.py \
     -use_wandb True \
 ```
 
+```bash
+srun --export=ALL python -u train_multi_gpu.py \
+    -data_dir /nnUNetv2/Data/nnUNet_raw \
+    -tumor tumor \
+    -num_epochs num_epochs \
+    -batch_size batch_size \
+    -use_wandb True \
+```
+
 ## Inference
 
 From the project root, you can launch inference with:
