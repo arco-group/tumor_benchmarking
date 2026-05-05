@@ -65,7 +65,6 @@ def show_box(box, ax):
     )
 
 # set up parser
-
 parser = argparse.ArgumentParser()
 parser.add_argument("--data_dir", type=str, default="/nnUNetv2/Data/nnUNet_raw", help="Path to training files")
 parser.add_argument("--tumor", type=str)
