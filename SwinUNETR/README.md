@@ -25,7 +25,7 @@ To train the model, use the `train.py` script. Below is an example bash command 
 srun --export=ALL python -u train.py \
      --data_dir tumor_benchmarking/nnUNetv2/Data/nnUNet_raw \
      --tumor tumor \
-    --img_size 256 \
+     --img_size 256 \
      -batch_size batch_size \
      -num_epoch num_epoch \
      -num_classes num_classes
