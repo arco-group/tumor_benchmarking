@@ -1,4 +1,18 @@
-# Tumor Benchmarking
+<div align="center">
+<h1>Are Foundation Models Ready for Real-World Tumor Segmentation? A Multi-Cancer Benchmarking Study
+</h1>
+
+[Matteo Tortora](https://matteotortora.github.io)<sup>7</sup>
+[Elena Mulero Ayllón](https://scholar.google.com/citations?user=-BOMvaUAAAAJ&hl=it&oi=ao)<sup>1</sup>, 
+[Filippo Ruffini](https://scholar.google.com/citations?user=eW7C8YMAAAAJ&hl=ca&oi=ao)<sup>6</sup>, 
+[Valerio Guarrasi](https://scholar.google.com/citations?user=840UXEMAAAAJ&hl=ca&oi=ao)<sup>1</sup>, 
+[Paolo Soda](https://scholar.google.com/citations?user=E7rcYCQAAAAJ&hl=it&oi=ao)<sup>1,6</sup>, 
+
+<sup>1</sup>  University Campus Bio-Medico of Rome,
+<sup>6</sup>  Umeå University,
+<sup>7</sup>  University of Genoa
+
+</div>
 
 ## Overview
 
