@@ -37,7 +37,7 @@ if not checkpoint_path.is_file():
 
 test_dataset = MultiDataset(data_dir=args.data_dir, tumor=args.tumor, mode="Test", img_size=args.img_size, test_masks_dir=args.test_masks_dir)
 
-test_loader = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers)
+test_loader = DataLoader(test_dataset, batch_size=1, shuffle=False, num_workers=args.num_workers)
 
 model = LitSwinUNETR2D.load_from_checkpoint(str(checkpoint_path))
 trainer = pl.Trainer(
