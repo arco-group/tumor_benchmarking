@@ -9,19 +9,8 @@ from torch.utils.data import Dataset
 
 
 class MultiDataset(Dataset):
-    def __init__(
-        self,
-        data_dir,
-        tumor,
-        mode="Training",
-        img_size=256,
-        num_classes=None,
-        transform=None,
-        mask_transform=None,
-        augment=False,
-        cache_size=0,
-        test_masks_dir=None,
-    ):
+    def __init__(self, data_dir, tumor, img_size=256, mode="Training", transform=None, mask_transform=None, augment=False, test_masks_dir=None):
+        
         tumor_path_labels = {
             "lung": "Dataset002_Lung1",
             "breast": "Dataset008_ISPY1",
@@ -30,59 +19,34 @@ class MultiDataset(Dataset):
             "brain": "Dataset004_BraTS",
         }
 
-        self.mode = mode
         self.tumor = tumor
         self.task = tumor_path_labels[tumor]
-        self.dataset = self.task.split("_")[-1]
         self.data_path = os.path.join(data_dir, self.task)
-        if mode == "Training":
-            self.img_path = os.path.join(self.data_path, "imagesTr")
-            self.mask_path = os.path.join(self.data_path, "labelsTr")
-            samples_path = os.path.join(self.data_path, f"{tumor}_train.txt")
-        else:
-            if test_masks_dir is None:
-                raise ValueError("test_masks_dir is required when mode is not 'Training'.")
-            self.img_path = os.path.join(self.data_path, "imagesTs")
-            self.mask_path = os.path.join(test_masks_dir, f"{self.dataset}_labelsTs")
-            samples_path = os.path.join(self.data_path, f"{tumor}_test.txt")
+        self.img_path = os.path.join(self.data_path, "imagesTr")
+        self.mask_path = os.path.join(self.data_path, "labelsTr")
         self.img_size = int(img_size)
-        self.num_classes = int(num_classes if num_classes is not None else (4 if tumor == "brain" else 2))
         self.transform = transform
         self.mask_transform = mask_transform
         self.augment = augment
-        self.cache_size = max(0, int(cache_size))
-        self._image_cache = OrderedDict()
-        self._mask_cache = OrderedDict()
+        self.mode = mode
+        self.test_masks_dir = test_masks_dir
 
-        with open(samples_path, "r") as f:
-            self.samples_list = [line.strip() for line in f if line.strip()]
+        if not self.mode == 'Training':
+            self.mask_path = os.path.join(f'{self.test_masks_dir}/{self.dataset}_labelsTs')  
+            self.img_path = os.path.join(self.data_path, "imagesTs") 
+            samples_path = os.path.join(self.data_path, f'{tumor}_test.txt')
+        else:
+            self.mask_path = os.path.join(self.data_path, "labelsTr")  
+            self.img_path = os.path.join(self.data_path, "imagesTr") 
+            samples_path = os.path.join(self.data_path, f'{tumor}_train.txt')
+
+        with open(samples_path, 'r') as f:
+            self.samples_list = [x[:-1] for x in f]
+
 
     def __len__(self):
         return len(self.samples_list)
 
-    def _load_volume(self, path, cache):
-        if self.cache_size > 0 and path in cache:
-            cache.move_to_end(path)
-            return cache[path]
-
-        volume = np.asarray(nib.load(path).dataobj, dtype=np.float32)
-        if self.cache_size > 0:
-            cache[path] = volume
-            cache.move_to_end(path)
-            while len(cache) > self.cache_size:
-                cache.popitem(last=False)
-        return volume
-
-    @staticmethod
-    def _extract_slice(volume, slice_idx):
-        if volume.shape[0] == volume.shape[1]:
-            return volume[:, :, slice_idx]
-        if volume.shape[1] == volume.shape[2]:
-            return volume[slice_idx, :, :]
-        axis = int(np.argmin(volume.shape))
-        return np.take(volume, slice_idx, axis=axis)
-
-    @staticmethod
     def _normalize(image):
         image = np.asarray(image, dtype=np.float32)
         finite = np.isfinite(image)
@@ -121,19 +85,16 @@ class MultiDataset(Dataset):
         img_path = os.path.join(self.img_path, volume_name)
         mask_path = os.path.join(self.mask_path, volume_name.split("_0000.nii")[0] + ".nii.gz")
 
-        image_volume = self._load_volume(img_path, self._image_cache)
-        mask_volume = self._load_volume(mask_path, self._mask_cache)
+        image_volume = np.asarray(nib.load(img_path).dataobj, dtype=np.float32)
+        mask_volume = np.asarray(nib.load(mask_path).dataobj, dtype=np.float32)
 
-        image = self._extract_slice(image_volume, slice_idx)
-        mask = self._extract_slice(mask_volume, slice_idx)
+        if image_volume.shape[0] == image_volume.shape[1]:
+            image_volume[:, :, slice_idx]
+        if mask_volume.shape[1] == mask_volume.shape[2]:
+            mask_volume[slice_idx, :, :]
 
         image = torch.from_numpy(self._normalize(image).copy()).float().unsqueeze(0)
-        if self.tumor == "lung":
-            mask = (mask == 3).astype(np.float32)
-        elif self.num_classes > 2:
-            mask = np.clip(np.rint(mask), 0, self.num_classes - 1).astype(np.float32)
-        else:
-            mask = (mask > 0).astype(np.float32)
+        mask = (mask > 0).astype(np.float32)
         mask = torch.from_numpy(mask.copy()).float().unsqueeze(0)
 
         if self.transform:
@@ -154,7 +115,7 @@ class MultiDataset(Dataset):
                 mode="nearest",
             ).squeeze(0)
 
-        if self.augment and self.mode == "Training":
+        if self.augment:
             image, mask = self._apply_augment(image, mask)
 
         return {
