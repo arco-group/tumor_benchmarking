@@ -5,7 +5,7 @@
 [Matteo Tortora](https://matteotortora.github.io)<sup>1</sup>
 [Elena Mulero Ayllón](https://scholar.google.com/citations?user=-BOMvaUAAAAJ&hl=it&oi=ao)<sup>2</sup>, 
 [Filippo Ruffini](https://scholar.google.com/citations?user=eW7C8YMAAAAJ&hl=ca&oi=ao)<sup>3</sup>, 
-[Valerio Guarrasi](https://scholar.google.com/citations?user=840UXEMAAAAJ&hl=ca&oi=ao)<sup>1</sup>, 
+[Valerio Guarrasi](https://scholar.google.com/citations?user=840UXEMAAAAJ&hl=ca&oi=ao)<sup>2</sup>, 
 [Paolo Soda](https://scholar.google.com/citations?user=E7rcYCQAAAAJ&hl=it&oi=ao)<sup>2,3</sup>, 
 
 <sup>1</sup>  University of Genoa
