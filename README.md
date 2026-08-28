@@ -16,18 +16,18 @@
 
 ## Overview
 
-This repository contains a comprehensive benchmarking framework for tumor segmentation across multiple deep learning architectures. It includes all models, datasets, and evaluation code used in our benchmarking paper (reference pending), along with reproducible training and inference pipelines.
+This repository contains a comprehensive benchmarking framework for tumor segmentation across multiple deep learning architectures. It includes the model implementations, patient-level dataset splits, evaluation code, and reproducible training and inference pipelines used in the study.
 
 ## Repository Contents
 
-The repository is organized into 5 main model implementations:
+The repository contains five model implementations and a shared directory with the patient-level dataset splits:
 
-- **nnUNetv2**: State-of-the-art automated medical image segmentation framework
-- **SAM-based**: Segment Anything Model variants adapted for medical imaging (forse faccio una per modello)
-- **MedSAM**:
-- **Medical SAM 2**:
-- **CNN**: Convolutional Neural Networks for tumor segmentation
-- **Swin UNETR**: Transformer-based architecture for medical image segmentation
+- **[nnU-Net v2](nnUNetv2/README.md)**: automated medical image segmentation framework used as a self-configuring baseline.
+- **[MedSAM](MedSAM/README.md)**: SAM-based medical image segmentation with single- and multi-GPU fine-tuning and inference support.
+- **[Medical SAM 2](Medical-SAM2/README.md)**: SAM 2-based medical image segmentation with bounding-box and click prompts.
+- **[CNN models](CNN/README.md)**: convolutional segmentation baselines, including U-Net and torchvision architectures such as DeepLabV3.
+- **[Swin UNETR](SwinUNETR/README.md)**: transformer-based medical image segmentation using the Swin UNETR architecture.
+- **[Data splits](Data/)**: patient-level train/test assignments for all six benchmark datasets.
 
 ## Dataset Structure
 
@@ -38,6 +38,13 @@ To ensure compatibility across all models, the datasets were organized following
 ```
 tumor_benchmarking/
 ├── README.md
+├── Data/
+│   ├── ATLAS_patient_splits.csv
+│   ├── BraTS_patient_splits.csv
+│   ├── HCC_patient_splits.csv
+│   ├── ISPY1_patient_splits.csv
+│   ├── KiTS23_patient_splits.csv
+│   └── Lung1_patient_splits.csv
 ├── nnUNetv2/
 │   ├── README.md
 │   ├── Data/
