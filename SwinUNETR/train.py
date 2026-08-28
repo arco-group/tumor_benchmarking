@@ -16,7 +16,8 @@ from SwinUNETR.model import LitSwinUNETR2D, _count_trainable_params
 
 parser = argparse.ArgumentParser()
 
-parser.add_argument("--data_dir", "--data_root", dest="data_dir", type=str, default="nnUNetv2/Data/nnUNet_raw")
+parser.add_argument("--data_dir", "--data_root", dest="data_dir", type=str, default="/mimer/NOBACKUP/groups/naiss2023-6-336/dataset_shared/BraTS/ASNR-MICCAI-BraTS2023-GLI-Challenge-TrainingData")
+parser.add_argument("--split_path", type=str)
 parser.add_argument("--tumor", type=str)
 parser.add_argument("-num_classes", "--num_classes", type=int, default=None)
 parser.add_argument("-checkpoint_path", "--checkpoint_path", type=str, default="outputs/swinunetr")
@@ -55,7 +56,7 @@ pl.seed_everything(args.seed, workers=True)
 ckpt_dir = "results/checkpoints"
 ckpt_dir.mkdir(parents=True, exist_ok=True)
 
-dataset = MultiDataset(data_dir=args.data_dir, tumor=args.tumor, mode="Training", img_size=args.img_size, augment=not args.no_aug)
+dataset = MultiDataset(data_dir=args.data_dir, split_path=args.split_path, img_size=args.img_size)
 
 dataloader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers)
 
