@@ -74,7 +74,22 @@ tumor_benchmarking/
 └── SwinUNETR/
 ```
 
-### Train/Test Split Files
+### Dataset Splits
+
+The `Data/` directory contains the patient-level train/test splits used in the benchmark, with one CSV file per dataset:
+
+| Dataset | Split file |
+| --- | --- |
+| ATLAS | [`ATLAS_patient_splits.csv`](Data/ATLAS_patient_splits.csv) |
+| BraTS | [`BraTS_patient_splits.csv`](Data/BraTS_patient_splits.csv) |
+| HCC | [`HCC_patient_splits.csv`](Data/HCC_patient_splits.csv) |
+| ISPY1 | [`ISPY1_patient_splits.csv`](Data/ISPY1_patient_splits.csv) |
+| KiTS23 | [`KiTS23_patient_splits.csv`](Data/KiTS23_patient_splits.csv) |
+| Lung1 | [`Lung1_patient_splits.csv`](Data/Lung1_patient_splits.csv) |
+
+Each file has two columns: `split`, which indicates whether the patient belongs to the `train` or `test` set, and `patient_id`, which contains the dataset-specific patient identifier. These files provide the reference splits for reproducing the experiments consistently across all model implementations.
+
+### Model Input Split Files
 
 The `tumor_train.txt` and `tumor_test.txt` files define which samples belong to the training and testing sets. Each file should contain entries with the following structure, listing all available slices for each sample:
 
